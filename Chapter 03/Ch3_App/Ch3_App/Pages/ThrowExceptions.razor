@@ -1,0 +1,20 @@
+﻿@page "/throw-exceptions"
+@using Ch3_App.Shared
+
+<h2>Throw Exceptions</h2>
+Use the <i>F12</i> key to open the browser's developer tools and view the <b>Console</b> output when you click the buttons.
+<hr />
+
+<ErrorBoundary>
+    <ChildContent>
+        <ThrowException />
+    </ChildContent>
+    <ErrorContent>
+        @context.Message
+        <h3>The Throw Exception button caused this error!</h3>
+    </ErrorContent>
+</ErrorBoundary>
+
+<ErrorHandler>
+    <ThrownExceptionHandled />
+</ErrorHandler>

@@ -1,0 +1,23 @@
+﻿@page "/logging"
+@inject ILogger<Logging> logger;
+
+<h2>Logging</h2>
+Use the <i>F12</i> key to open the browser's developer tools and view the <b>Console</b> output when you click the button.
+<hr />
+
+<button class="btn btn-primary" @onclick="DemoLogging">
+    Click me
+</button>
+
+@code {
+    private void DemoLogging()
+    {
+        logger.LogTrace("Logger: Trace");
+        logger.LogDebug("Logger: Debug");
+        logger.LogInformation("Logger: Information");
+        logger.LogWarning("Logger: Warning");
+        logger.LogError("Logger: Error");
+        logger.LogCritical("Logger: Critical");
+        logger.Log(LogLevel.None, "Logger: None");
+    }
+}

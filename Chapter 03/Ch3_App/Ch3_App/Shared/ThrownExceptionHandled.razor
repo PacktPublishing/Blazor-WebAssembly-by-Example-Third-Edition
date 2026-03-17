@@ -1,0 +1,20 @@
+﻿<button class="btn btn-primary" @onclick="NewException">
+    Throw Exception - Handled
+</button>
+
+@code {
+    [CascadingParameter]
+    public ErrorHandler? Error { get; set; }
+    private void NewException()
+    {
+        try
+        {
+            throw new Exception("This is a sample error!");
+        }
+        catch (Exception ex)
+        {
+            Error?.ProcessError(ex);
+        }
+    }
+}
+

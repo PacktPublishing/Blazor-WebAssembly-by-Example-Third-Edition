@@ -1,0 +1,14 @@
+﻿@inject ILogger<ErrorHandler> Logger
+
+<CascadingValue Value="this">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+    public void ProcessError(Exception ex)
+    {
+        Logger.LogError("Message: {Message}", ex.Message);
+    }
+}
