@@ -1,0 +1,39 @@
+﻿@using KanbanBoard.Models
+
+<div class="col">
+    <h2>@Priority.ToString() Priority</h2>
+    <div class="dropzone" @ondragover:preventDefault
+         @ondrop="OnDropHandler">
+        @foreach (var item in FilteredTasks)
+        {
+            <div class="draggable"
+                 draggable="true"
+                 @key="item"
+                 @ondragstart="@(() => OnDragStartHandler(item))">
+                @item.TaskName
+                <span class="badge text-bg-secondary">
+                    @item.Priority
+                </span>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public List<TaskItem> TaskItems { get; set; } = new();
+    [Parameter] public TaskPriority Priority { get; set; }
+    [Parameter] public EventCallback<TaskPriority> OnDrop { get; set; }
+    [Parameter] public EventCallback<TaskItem> OnStartDrag { get; set; }
+
+    private IEnumerable<TaskItem> FilteredTasks => TaskItems.Where(q => q.Priority == Priority);
+
+    private void OnDropHandler()
+    {
+        OnDrop.InvokeAsync(Priority);
+    }
+
+    private void OnDragStartHandler(TaskItem task)
+    {
+        OnStartDrag.InvokeAsync(task);
+    }
+}
