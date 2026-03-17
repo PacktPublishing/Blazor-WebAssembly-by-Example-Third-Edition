@@ -1,0 +1,30 @@
+﻿@page "/event-handling"
+<h3>EventHandling</h3>
+This page demonstrates how to handle events in Blazor. You can use the @@on... syntax to specify event handlers for various events, such as click, change, 
+input, etc. The event handler can be a method that takes no parameters or a method that takes an event argument, such as ChangeEventArgs for change events.
+<hr />
+
+<div>OnClickHandler</div>
+<button type="button" @onclick="OnClickHandler">
+    Click Me
+</button>
+
+<div class="pt-3">OnChangedHandlerAsync</div>
+<input type="checkbox" @onchange="OnChangedHandlerAsync" /> Is OK?
+
+@code {
+    private void OnClickHandler()
+    {
+        // ...
+    }
+
+    bool isOk;
+    private async Task OnChangedHandlerAsync(ChangeEventArgs e)
+    {
+        isOk = (bool)e.Value!;
+        // await ...
+    }
+}
+
+
+

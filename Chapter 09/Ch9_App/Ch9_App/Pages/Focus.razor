@@ -1,0 +1,30 @@
+﻿@page "/focus"
+
+<h3>FocusAsync</h3>
+This page demonstrates how to use the FocusAsync method to set the focus on an element in Blazor. You can use the 
+ElementReference type to reference an element in your component and then call the FocusAsync method to set the focus on that element.
+<hr />
+
+<input type="text" @ref="taskInput" @bind="@taskName" />
+<button type="button" @onclick="OnClickHandlerAsync">
+    Add Task
+</button>
+@foreach (var item in tasks)
+{
+    <div>@item</div>
+}
+
+@code {
+    private string? taskName;
+    private ElementReference taskInput;
+    private List<string> tasks = new();
+
+    private async Task OnClickHandlerAsync()
+    {
+        tasks.Add(taskName!);
+        taskName = "";
+        await taskInput.FocusAsync();
+    }
+}
+
+

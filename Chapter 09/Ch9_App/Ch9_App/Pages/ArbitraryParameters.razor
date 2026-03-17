@@ -1,0 +1,38 @@
+﻿@page "/arbitrary-parameters"
+@using Ch9_App.Shared
+
+<h3>Arbitrary Parameters</h3>
+This page demonstrates how to use arbitrary parameters in Blazor. Arbitrary parameters allow you to pass any additional 
+attributes to a component that are not explicitly defined as parameters. This can be useful when you want to add custom attributes 
+or when you want to pass attributes that are not known at compile time.
+<hr />
+<h4>Attribute precedence matters</h4>
+<BweButton2 @attributes="InputAttributes2"
+            @onclick="OnClickHandler"
+            class="button button-black">
+    Submit
+</BweButton2>
+
+<br /><br />
+<BweButton2  class="button button-black" 
+             @attributes="InputAttributes2"
+             @onclick="OnClickHandler">
+    Submit
+</BweButton2>
+
+@code {
+    public Dictionary<string, object> InputAttributes2 { get; set; } =
+    new()
+    {
+        { "class", "button button-red" },
+        { "title", "This is another button" },
+        { "name", "btnSubmit" },
+        { "type", "button" },
+        { "myAttribute", "123"}
+    };
+
+    private void OnClickHandler()
+    {
+        /// Do something when the button is clicked
+    }
+}

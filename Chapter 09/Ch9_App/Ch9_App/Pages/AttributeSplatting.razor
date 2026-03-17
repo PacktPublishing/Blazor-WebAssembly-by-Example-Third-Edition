@@ -1,0 +1,38 @@
+﻿@page "/attribute-splatting"
+@using Ch9_App.Shared
+
+<h3>Attribute Splatting</h3>
+This page demonstrates how to use attribute splatting in Blazor. Attribute splatting allows you to pass a dictionary of attributes to a component, 
+which can be useful when you want to apply a set of attributes dynamically or when you want to avoid repeating the same attributes for multiple components.
+<hr />
+
+<h4>Without attribute splatting</h4>
+<BweButton Class="button button-red"
+           Disabled="false"
+           Title="This is a red button"
+           Type="button"
+           ClickEvent="OnClickHandler">
+    Submit
+</BweButton>
+
+<h4 class="pt-3">With attribute splatting</h4>
+<BweButton @attributes="InputAttributes"
+           ClickEvent="OnClickHandler">
+    Submit
+</BweButton>
+
+@code {
+    public Dictionary<string, object> InputAttributes { get; set; } =
+    new()
+    {
+        { "Class", "button button-red"},
+        { "Disabled", false},
+        { "Title", "This is a red button" },
+        { "Type", "button" }
+    };
+
+    private void OnClickHandler()
+    {
+        /// Do something when the button is clicked
+    }
+}

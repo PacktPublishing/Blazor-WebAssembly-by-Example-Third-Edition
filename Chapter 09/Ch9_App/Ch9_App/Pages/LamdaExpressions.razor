@@ -1,0 +1,27 @@
+﻿@page "/lamda-expressions"
+
+<h3>Lamda Expressions</h3>
+This page demonstrates how to use lambda expressions in Blazor. Lambda expressions are anonymous functions that can be used to create delegates or expression tree types. They are often used in event handlers to capture local variables or to define inline logic.
+<hr />
+
+<h1>@message</h1>
+
+<button type="button"
+        @onclick="@(() => SetMessage("Blazor is Awesome!"))">
+    Who Is Awesome?
+</button>
+
+<button type="button"
+        @onclick="@(() => { message = "Blazor Rocks!"; })">
+    Who Rocks?
+</button>
+
+@code {
+    private string? message;
+    private void SetMessage(string newMessage)
+    {
+        message = newMessage;
+    }
+}
+
+

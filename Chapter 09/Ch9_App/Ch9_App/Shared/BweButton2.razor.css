@@ -1,0 +1,13 @@
+﻿.button {
+    color: white;
+    cursor: pointer;
+    padding: 2em;
+}
+
+.button-red {
+    background-color: red;
+}
+
+.button-black {
+    background-color: black;
+}
