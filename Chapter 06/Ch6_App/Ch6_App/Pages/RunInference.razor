@@ -1,0 +1,58 @@
+﻿@page "/run-inference"
+@inject IJSRuntime js
+@implements IAsyncDisposable
+
+<h2>Run Inference</h2>
+Use the <i>F12</i> key to open the browser's developer tools and view the <b>Console</b> output and view the tokens.
+<hr />
+
+<InputText @bind-Value="Text" />
+<button class="btn btn-primary" @onclick="GetResult">Run Inference</button>
+<br /><br />
+@if (Result != null)
+{
+   
+    <h2>Embeddings:</h2>
+    <div class="text-break border p-3 bg-light rounded">
+        @foreach (var item in Result)
+        {
+            <span>@item,</span>
+        }
+    </div>
+}
+
+@code {
+    public string Text = "Hello World!";
+    private IJSObjectReference? _module;
+    double[] Result;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                _module = await js.InvokeAsync<IJSObjectReference>("import", "./scripts/onnx.js");
+                var success = await _module.InvokeAsync<bool>("initOnnx");
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                StateHasChanged();
+            }
+        }
+    }
+
+    public async Task GetResult()
+    {
+        Result = await _module.InvokeAsync<double[]>("runInference", Text);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module is not null)
+        {
+            await _module.DisposeAsync();
+        }
+    }
+}

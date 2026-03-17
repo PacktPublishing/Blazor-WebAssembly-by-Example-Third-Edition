@@ -1,0 +1,38 @@
+﻿@page "/load-model"
+@inject IJSRuntime js
+@implements IAsyncDisposable
+
+<p>Status: @status</p>
+
+@code {
+    public string status = "⏳ Loading model...";
+
+    private IJSObjectReference? _module;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                _module = await js.InvokeAsync<IJSObjectReference>("import", "./scripts/onnx.js");
+                var success = await _module.InvokeAsync<bool>("initOnnx");
+                status = success ? "✅ Model loaded" : "❌ Load failed";
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                status = $"❌ Error: {ex.Message}";
+                StateHasChanged();
+            }
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module is not null)
+        {
+            await _module.DisposeAsync();
+        }
+    }
+}
