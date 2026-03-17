@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="ModalDialog/ModalDialog.csproj" />
+  <Project Path="MyComponents/MyComponents.csproj" />
+</Solution>
