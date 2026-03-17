@@ -1,0 +1,12 @@
+﻿@page "/counter/{increment:int}"
+@page "/counter"
+
+<PageTitle>Counter</PageTitle>
+
+<div class="alert alert-info">
+    <h1>Count by @increment</h1>
+    <p role="status">Current count: @currentCount</p>
+    <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+</div>
+
+
