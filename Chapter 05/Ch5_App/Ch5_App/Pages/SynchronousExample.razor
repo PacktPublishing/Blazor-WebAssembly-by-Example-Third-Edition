@@ -1,0 +1,22 @@
+﻿@page "/synchronous-example"
+@inject IJSRuntime js
+
+<PageTitle>Synchronous Example</PageTitle>
+
+<h2>Synchronous JavaScript Interop</h2>
+This example demonstrates how to call a JavaScript function synchronously from Blazor.
+<hr />
+
+<h3>Window width: <span>@width</span></h3>
+
+@code {
+    string width = "Loading...";
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            width = ((IJSInProcessRuntime)js).Invoke<int>("getWindowWidth").ToString();
+            StateHasChanged();
+        }
+    }
+}

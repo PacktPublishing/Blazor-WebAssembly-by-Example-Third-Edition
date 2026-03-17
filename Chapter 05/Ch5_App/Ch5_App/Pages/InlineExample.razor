@@ -1,0 +1,23 @@
+﻿@page "/inline-example"
+@inject IJSRuntime js
+
+<PageTitle>Inline Script</PageTitle>
+
+<h2>Inline Script</h2>
+This example demonstrates how to call a JavaScript function from Blazor to get the width of the browser window. The JavaScript function is defined inline in the HTML of the page.
+<hr />
+
+<h3>Page Width: <span>@_windowWidth</span></h3>
+
+@code {
+    private int _windowWidth;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _windowWidth = await js.InvokeAsync<int>("getWindowWidth");
+            StateHasChanged();
+        }
+    }
+}

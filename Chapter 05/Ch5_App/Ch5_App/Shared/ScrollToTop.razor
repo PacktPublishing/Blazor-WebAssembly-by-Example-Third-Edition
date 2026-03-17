@@ -1,0 +1,35 @@
+﻿@inject IJSRuntime js
+@implements IAsyncDisposable
+
+<button class="btn btn-primary" @onclick="ScrollToTopAsync">
+    Scroll to Top
+</button>
+
+@code {
+    private IJSObjectReference? module;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            module = await js.InvokeAsync<IJSObjectReference>(
+                "import", "./Shared/ScrollToTop.razor.js");
+        }
+    }
+
+    private async Task ScrollToTopAsync()
+    {
+        if (module is not null)
+        {
+            await module.InvokeVoidAsync("scrollToTop");
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (module is not null)
+        {
+            await module.DisposeAsync();
+        }
+    }
+}

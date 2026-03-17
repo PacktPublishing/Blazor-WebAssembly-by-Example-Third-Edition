@@ -1,0 +1,46 @@
+﻿@page "/external-example"
+@inject IJSRuntime js
+@implements IAsyncDisposable
+
+<PageTitle>External Global Script</PageTitle>
+
+<h2>External Global Script</h2>
+This example demonstrates how to call a JavaScript function from Blazor to get the width and height of the browser window. The JavaScript function is defined in an external file named jsInterop.js.   
+<hr />
+@if (windowSize.Width != null)
+{
+    <h3>
+        Window Size: @windowSize.Width x @windowSize.Height
+    </h3>
+}
+<button @onclick="GetWindowSize">Get Window Size</button>
+
+@code {
+    private WindowSize windowSize = new WindowSize();
+    private IJSObjectReference? module;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            module = await js.InvokeAsync<IJSObjectReference>(
+                "import", "./scripts/jsInterop.js");
+        }
+    }
+
+    private async Task GetWindowSize()
+    {
+        if (module is not null)
+        {
+            windowSize = await module.InvokeAsync<WindowSize>("getWindowSize");
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (module is not null)
+        {
+            await module.DisposeAsync();
+        }
+    }
+}

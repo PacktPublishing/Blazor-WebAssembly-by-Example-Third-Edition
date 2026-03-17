@@ -1,0 +1,15 @@
+﻿@page "/scrolling"
+
+<PageTitle>Scrolling Example</PageTitle>
+
+<h3>Scrolling Example</h3>
+This example demonstrates how to use JavaScript interop to scroll the page to the top when a button is clicked.
+Scroll to the bottom of this page and click the <b>Scroll to Top</b> button to scroll back to the top of the page.
+<hr />
+
+@for (int i = 0; i < 25; i++)
+{
+    <div class="alert alert-info">This is line @i</div>
+}
+
+<ScrollToTop />

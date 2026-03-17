@@ -1,0 +1,52 @@
+﻿@page "/resize"
+@inject IJSRuntime js
+@implements IAsyncDisposable
+
+<PageTitle>Resize Example</PageTitle>
+
+<h2>Resize Example</h2>
+This Blazor component demonstrates bidirectional JavaScript interop - it allows JavaScript to call back into C# when the browser window is resized. The JavaScript function is defined in a collocated file named Resize.razor.js.
+<hr />
+
+@if (windowSize.Width != null)
+{
+    <h2>
+        Window Size: @windowSize.Width x @windowSize.Height
+    </h2>
+}
+
+@code {
+    private DotNetObjectReference<Resize>? objRef;
+    private IJSObjectReference? module;
+    private WindowSize windowSize = new WindowSize();
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            objRef = DotNetObjectReference.Create(this);
+            module = await js.InvokeAsync<IJSObjectReference>
+                ("import", "./Pages/Resize.razor.js");
+
+            if (module is not null && objRef is not null)
+            {
+                await module.InvokeVoidAsync("registerResizeHandler", objRef);
+            }
+        }
+    }
+    [JSInvokable]
+    public async Task GetWindowSize(WindowSize newWindowSize)
+    {
+        windowSize = newWindowSize;
+        StateHasChanged();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (module is not null)
+        {
+            await module.InvokeVoidAsync("dispose");
+            await module.DisposeAsync();
+        }
+        objRef?.Dispose();
+    }
+}

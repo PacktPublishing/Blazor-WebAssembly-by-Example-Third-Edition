@@ -1,0 +1,15 @@
+﻿@page "/"
+@using LocalStorage.Services
+
+<PageTitle>Local Storage Service</PageTitle>
+
+<h2>Local Storage Service</h2>
+Data:
+<input type="text" @bind-value="data" size="25" />
+<hr />
+<button @onclick="SaveToLocalStorageAsync">
+    Save to Local Storage
+</button>
+<button @onclick="ReadFromLocalStorageAsync">
+    Read from Local Storage
+</button>
