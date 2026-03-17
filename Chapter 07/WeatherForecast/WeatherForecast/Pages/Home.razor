@@ -1,0 +1,94 @@
+﻿@page "/"
+@using WeatherForecast.Models
+@using System.Text
+@using WeatherForecast.Shared
+@inject IJSRuntime js
+@inject HttpClient Http
+@implements IAsyncDisposable
+
+<PageTitle>Weather Forecast</PageTitle>
+
+@if (_forecast == null)
+{
+    <p><em>@_message</em></p>
+}
+else
+{
+    <div class="card-group">
+        @foreach (var item in _forecast.List.Take(5))
+        {
+            <DailyForecast Seconds="@item.Dt"
+                           LowTemp="@item.Main.TempMin"
+                           HighTemp="@item.Main.TempMax"
+                           Description="@item.Weather[0].Description"
+                           Icon="@item.Weather[0].Icon" />
+        }
+    </div>
+}
+
+@code {
+    private IJSObjectReference? _module;
+    private string _message = "Loading...";
+    private Position? _pos;
+    private ForecastResponse? _forecast;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                _module = await js.InvokeAsync<IJSObjectReference>(
+                    "import", "./scripts/jsInterop.js");
+                await GetPositionAsync();
+                await GetForecastAsync();
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                _message = $"Error: {ex.Message}";
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task GetPositionAsync()
+    {
+        if (_module is not null)
+        {
+            _pos = await _module.InvokeAsync<Position>("getPosition");
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module is not null)
+        {
+            await _module.DisposeAsync();
+        }
+    }
+
+    private async Task GetForecastAsync()
+    {
+        if (_pos != null)
+        {
+            string APIKey = "{Your API Key}";
+            string url = $"https://api.openweathermap.org/data/2.5/forecast?" +
+                            $"lat={_pos.Latitude}&lon={_pos.Longitude}" +
+                            $"&exclude=current,minutely,hourly,alerts" +
+                            $"&units=imperial&appid=" + APIKey;
+
+            _forecast = await Http.GetFromJsonAsync<ForecastResponse>(url);
+        }
+    }
+
+    //Use this version of GetForecastAsync if you want to use the static weather.json file instead of calling the OpenWeather API.
+    // private async Task GetForecastAsync()
+    // {
+    //     if (_pos != null)
+    //     {
+    //         _forecast = await Http.GetFromJsonAsync<ForecastResponse>
+    //             ("sample-data/weather.json");
+    //     }
+    // }
+}

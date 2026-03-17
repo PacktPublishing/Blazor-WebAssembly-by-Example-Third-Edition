@@ -1,0 +1,38 @@
+{
+  "id": "/",
+  "lang": "en",
+  "name": "5-Day Weather Forecast",
+  "short_name": "Weather",
+  "display": "standalone",
+  "start_url": "./",
+  "background_color": "#ffa500",
+  "theme_color": "transparent",
+  "description": "This is a 5-day weather forecast app",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "images/Sun-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "images/Sun-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "images/screenshot-mobile.png",
+      "type": "image/png",
+      "sizes": "540x720",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "images/screenshot-desktop.png",
+      "type": "image/png",
+      "sizes": "1280x720",
+      "form_factor": "wide"
+    }
+  ]
+}
