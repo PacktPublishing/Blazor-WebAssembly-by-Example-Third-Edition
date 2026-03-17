@@ -1,0 +1,122 @@
+﻿@using SmartComponents.Models
+@using SmartComponents.Services
+@inject IOnnxService Onnx
+
+<div class="position-relative">
+    <input class="form-control" placeholder="@Placeholder" @bind="Input" @bind:event="oninput" />
+
+    @if (_suggestions?.Count > 0)
+    {
+        <ul class="list-group position-absolute shadow-sm" style="z-index:2000; width:100%; max-height:240px; overflow:auto;">
+            @foreach (var s in _suggestions)
+            {
+                <li class="list-group-item list-group-item-action" @onclick="() => Select(s.Category)">@s.Category</li>
+            }
+        </ul>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    [Parameter]
+    public IEnumerable<string> Items { get; set; } =
+        Enumerable.Empty<string>();
+
+    [Parameter]
+    public EventCallback<ComboBoxResult> OnSelected { get; set; }
+
+    [Parameter]
+    public int MaxSuggestions { get; set; } = 5;
+
+    [Parameter]
+    public string Placeholder { get; set; } =
+        "Type to search...";
+
+    private List<EmbeddingItem>? _suggestionEmbeddings;
+    private List<CompareResult>? _suggestions;
+    private CancellationTokenSource? _cts;
+
+    private string _input = "";
+    private string Input
+    {
+        get => _input;
+        set
+        {
+            if (_input == value) return;
+            _input = value;
+            _ = DebounceSearchAsync();
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Value != _input)
+        {
+            _input = Value ?? "";
+        }
+
+        if (Items == null || !Items.Any())
+        {
+            _suggestionEmbeddings = null;
+            return;
+        }
+
+        var candidates = Items.ToArray();
+        _suggestionEmbeddings = new();
+        foreach (var item in candidates)
+        {
+            var embedding = await Onnx.RunInferenceAsync(item);
+            _suggestionEmbeddings.Add(new EmbeddingItem
+            {
+                Category = item.Contains(':') ? item.Substring(0, item.IndexOf(':')) : item,
+                Sentence = item,
+                Embeddings = embedding
+            });
+        }
+    }
+
+    private async Task DebounceSearchAsync()
+    {
+        _cts?.Cancel();
+        _cts = new CancellationTokenSource();
+        var token = _cts.Token;
+
+        try
+        {
+            await Task.Delay(250, token);
+
+            if (string.IsNullOrWhiteSpace(_input))
+            {
+                _suggestions = null;
+                StateHasChanged();
+                return;
+            }
+
+            var matches = await Onnx.CompareCandidatesAsync(_input, _suggestionEmbeddings.ToArray());
+            _suggestions = matches?.Take(MaxSuggestions).ToList();
+            StateHasChanged();
+        }
+        catch (OperationCanceledException) { }
+        finally
+        { }
+    }
+
+    private async Task Select(string selectedValue)
+    {
+        var result = new ComboBoxResult(_input, selectedValue);
+
+        _suggestions = null;
+        _input = selectedValue;
+        Value = selectedValue;  // ✅ Keep Value in sync
+
+        await ValueChanged.InvokeAsync(selectedValue);
+        await OnSelected.InvokeAsync(result);
+
+        StateHasChanged();
+    }
+}

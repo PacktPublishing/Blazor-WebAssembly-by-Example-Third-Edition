@@ -1,0 +1,109 @@
+﻿@page "/"
+@using SmartComponents.Models
+@using SmartComponents.Services
+@using SmartComponents.Shared
+
+<div class="container mt-4">
+    <h3>Expense Tracker</h3>
+    <div class="row mb-3">
+        <div class="col">
+            <label>Description</label>
+            <SmartComboBox Items="categories"
+                           @bind-Value="newExpense.Category"
+                           OnSelected="HandleCategorySelected"
+                           Placeholder="Type expense description..."
+                           MaxSuggestions="3" />
+
+            @if (!string.IsNullOrWhiteSpace(newExpense.Description))
+            {
+                <div class="mt-2">
+                    <span class="badge bg-secondary">Description: @newExpense.Description</span>
+                </div>
+            }
+        </div>
+
+        <div class="col">
+            <label>Amount</label>
+            <input type="number" @bind="newExpense.Amount" step="0.01" placeholder="0.00" class="form-control" />
+        </div>
+
+        <div class="col">
+            <label>Date</label>
+            <input type="date" @bind="newExpense.Date" class="form-control" />
+        </div>
+    </div>
+
+    <button @onclick="AddExpense" class="btn btn-success">Add Expense</button>
+    <hr />
+    @if (expenses.Count > 0)
+    {
+        <h5>Expenses (@expenses.Count) - Total: $@expenses.Sum(e => e.Amount).ToString("N2")</h5>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var expense in expenses)
+                {
+                    <tr>
+                        <td>@expense.Date.ToString("MM/dd/yyyy")</td>
+                        <td>@expense.Description</td>
+                        <td>@expense.Category</td>
+                        <td>$@expense.Amount.ToString("N2")</td>
+                        <td>
+                            <button @onclick="() => RemoveExpense(expense)" class="btn btn-sm btn-danger">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p class="text-muted mt-4">No expenses yet.</p>
+    }
+</div>
+
+@code {
+    private List<Expense> expenses = new();
+    private Expense newExpense = new();
+
+    private readonly string[] categories = {
+        "Airfare: Flights, airline tickets, baggage fees",
+        "Lodging: Hotels, overnight accommodation, Airbnb",
+        "Ground Transport: Taxi, Uber, Lyft, car rental, local travel",
+        "Meals & Entertainment: Restaurant, food, drinks, coffee, dining",
+        "Entertainment: museum tickets, concert admissions, sporting events, tours, spa treatments, golf fees",
+        "Fees & Incidentals: Parking, tolls, WiFi, registration, miscellaneous"
+    };
+
+    private void HandleCategorySelected(ComboBoxResult result)
+    {
+        newExpense.Description = result.Query;
+    }
+
+    private void AddExpense()
+    {
+        expenses.Add(new Expense
+        {
+            Id = Guid.NewGuid(),
+            Description = newExpense.Description,
+            Category = newExpense.Category,
+            Amount = newExpense.Amount,
+            Date = newExpense.Date
+        });
+
+        newExpense = new Expense();
+    }
+
+    private void RemoveExpense(Expense expense)
+    {
+        expenses.Remove(expense);
+    }
+}
