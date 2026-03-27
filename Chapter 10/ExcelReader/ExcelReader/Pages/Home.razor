@@ -1,0 +1,167 @@
+﻿@page "/"
+@using DocumentFormat.OpenXml;
+@using DocumentFormat.OpenXml.Packaging;
+@using DocumentFormat.OpenXml.Spreadsheet;
+@using ExcelReader.Models;
+@using Microsoft.AspNetCore.Components.QuickGrid
+
+<PageTitle>Excel Reader</PageTitle>
+
+<InputFile OnChange="@SelectFile" accept=".xlsx" />
+@if (file != null)
+{
+    if (errorMessage == null)
+    {
+        <div style="padding: 15px;">
+            <div><b>File Name:</b> @file.Name</div>
+            <div><b>File Size:</b> @file.Size.ToString("N0") bytes</div>
+            <div><b>Content type:</b> @file.ContentType</div>
+        </div>
+        <button type="button" @onclick="ReadFile">
+            Read file
+        </button>
+        if (!loaded)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            <p>Rows: @rowCount</p>
+
+            @if (loaded && allMedals.Any())
+            {
+                <div style="margin-top: 10px;">
+                    <div class="mb-3">
+                        <label for="countryFilter" class="form-label">Filter by Country:</label>
+                        <input type="text" id="countryFilter" class="form-control" style="max-width: 300px;"
+                               @bind="countryFilter" @bind:event="oninput" placeholder="Enter country name..." />
+                    </div>
+
+                    <QuickGrid Items="@FilteredMedals" TGridItem="Medals" Pagination="@pagination">
+                        <PropertyColumn Title="Year" Property="@(m => m.Year)" Sortable="true" />
+                        <PropertyColumn Title="Country" Property="@(m => m.Country)" Sortable="true" />
+                        <PropertyColumn Title="Gold" Property="@(m => m.Gold)" Sortable="true" />
+                        <PropertyColumn Title="Silver" Property="@(m => m.Silver)" Sortable="true" />
+                        <PropertyColumn Title="Bronze" Property="@(m => m.Bronze)" Sortable="true" />
+                    </QuickGrid>
+
+                    <Paginator State="@pagination" />
+                </div>
+            }
+        }
+    }
+    else
+    {
+        <p>@errorMessage</p>
+    }
+}
+@code {
+    private const int MaxFileSize = 60000;
+    private const string ExcelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+    private IBrowserFile? file;
+    private string? errorMessage;
+
+    private bool loaded;
+    private int rowCount;
+
+    private IQueryable<Medals> allMedals;
+    private string countryFilter = string.Empty;
+
+    private PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+
+    private IQueryable<Medals> FilteredMedals
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(countryFilter))
+            {
+                return allMedals;
+            }
+            return allMedals.Where(m => m.Country.Contains(countryFilter, StringComparison.OrdinalIgnoreCase));
+        }
+    }
+
+    private void SelectFile(InputFileChangeEventArgs e)
+    {
+        file = e.File;
+        errorMessage = null;
+
+        if (file.Size >= MaxFileSize || file.ContentType != ExcelContentType)
+        {
+            errorMessage = "Invalid file";
+        }
+    }
+    private async Task ReadFile()
+    {
+        try
+        {
+            var stream = new MemoryStream();
+            await file.OpenReadStream(MaxFileSize).CopyToAsync(stream);
+            SpreadsheetDocument doc = SpreadsheetDocument.Open(stream, false);
+            WorkbookPart wbPart = doc.WorkbookPart;
+            var sheet = wbPart.Workbook.Descendants<Sheet>().Where(s => s.Name == "olympic_medals").FirstOrDefault();
+            WorksheetPart wsPart = (WorksheetPart)(wbPart.GetPartById(sheet.Id));
+            SheetData sheetData = wsPart.Worksheet.Elements<SheetData>().First();
+            rowCount = sheetData.Elements<Row>().Count();
+            var medalsList = new List<Medals>();
+            var stringTable = wbPart.GetPartsOfType<SharedStringTablePart>()
+                                    .FirstOrDefault();
+            foreach (Row r in sheetData.Elements<Row>())
+            {
+                if (r.RowIndex! == 1)
+                {
+                    continue;
+                }
+                ;
+                int col = 1;
+                var medals = new Medals();
+                foreach (Cell c in r.Elements<Cell>())
+                {
+                    string value = c.InnerText;
+                    if (c.DataType != null)
+                    {
+                        if (c.DataType.Value ==
+                          CellValues.SharedString)
+                        {
+                            value = stringTable.SharedStringTable
+                                .ElementAt(int.Parse(value))
+                                .InnerText;
+                        }
+                    }
+                    switch (col)
+                    {
+                        case 1:
+                            medals.Year = int.Parse(value);
+                            break;
+                        case 2:
+                            medals.Country = value;
+                            break;
+                        case 3:
+                            medals.Gold = int.Parse(value);
+                            break;
+                        case 4:
+                            medals.Silver = int.Parse(value);
+                            break;
+                        case 5:
+                            medals.Bronze = int.Parse(value);
+                            break;
+                        default:
+                            break;
+                    }
+                    col = col + 1;
+                }
+                medalsList.Add(medals);
+            }
+
+            allMedals = medalsList.AsQueryable();
+
+            loaded = true;
+        }
+        catch (Exception)
+        {
+            errorMessage = "Invalid Excel file";
+        }
+    }
+
+}
