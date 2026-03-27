@@ -1,0 +1,31 @@
+﻿@page "/weather-grid"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Ch10_App.Services
+@using Ch10_App.Models
+
+<h2>Weather Grid (1000 Records)</h2>
+This page demonstrates the use of the <b>QuickGrid</b> component to display a large dataset with pagination and virtualization.
+<hr />
+<QuickGrid Items="@weatherHistory"
+           Pagination="@pagination"
+           TGridItem="Weather"
+           Virtualize="true"     
+           Class="table table-hover table-striped">
+    <PropertyColumn Property="@(w => w.id)" Title="#" Sortable="true" Format="0000" Align="Align.Left" />
+    <PropertyColumn Property="@(w => w.Date)" Title="Date/Time" Sortable="true" />
+    <PropertyColumn Property="@(w => w.TemperatureF)" Title="Temp (°F)" Sortable="true" Align="Align.Center" />
+    <PropertyColumn Property="@(w => w.TemperatureC)" Title="Temp (°C)" Sortable="true" Align="Align.Center" />
+</QuickGrid>
+
+<Paginator State="@pagination" />
+
+@code {
+    private WeatherDataService weatherService = new();
+    private IQueryable<Weather> weatherHistory = null!;
+    PaginationState pagination = new PaginationState { ItemsPerPage = 15 };
+
+    protected override void OnInitialized()
+    {
+        weatherHistory = weatherService.GenerateWeatherData(1000);
+    }
+}

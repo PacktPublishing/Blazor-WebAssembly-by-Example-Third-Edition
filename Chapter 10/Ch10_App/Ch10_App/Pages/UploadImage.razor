@@ -1,0 +1,35 @@
+﻿@page "/upload-image"
+@using Microsoft.AspNetCore.Components.Forms
+
+<h2>Upload Image</h2>
+This page demonstrates how to use the <code>InputFile</code> component to allow users to upload an image file. The example includes an event 
+handler that processes the file when it is selected, resizes it, and displays the original and resized file sizes along with the image.
+<hr />
+<InputFile OnChange="OnChangeHandler" accept="image/png, image/jpeg" />
+
+@if (@image != null)
+{
+    <div class="pt-2">Old file size: @uploadedFile!.Size.ToString("N0") bytes</div>
+    <div class="pb-2">New file size: @resizedFile!.Size.ToString("N0") bytes</div>
+    <img src="data:@uploadedFile.ContentType;base64,@image" />
+}
+
+@code {
+    private IBrowserFile? uploadedFile;
+    private IBrowserFile? resizedFile;
+    private string? image;
+
+    async Task OnChangeHandler(InputFileChangeEventArgs e)
+    {
+        uploadedFile = e.File;
+        resizedFile = await uploadedFile.RequestImageFileAsync(
+               uploadedFile.ContentType,
+               100,
+               100
+        );
+        var buffer = new byte[resizedFile.Size];
+        using var stream = resizedFile.OpenReadStream();
+        await stream.ReadAsync(buffer);
+        image = Convert.ToBase64String(buffer);
+    }
+}

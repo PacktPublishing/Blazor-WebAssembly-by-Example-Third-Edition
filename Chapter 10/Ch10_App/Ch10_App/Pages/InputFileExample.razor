@@ -1,0 +1,18 @@
+﻿@page "/input-file-example"
+
+<h2>Input File Example</h2>
+This page demonstrates how to use the <code>InputFile</code> component to allow users to upload files. The example includes an event handler 
+that processes the file when it is selected.
+<hr />
+
+<InputFile OnChange="OnChangeHandler" accept="image/png, image/jpeg" />
+
+@code {
+    private IBrowserFile? selectedFile;
+
+    private async Task OnChangeHandler(InputFileChangeEventArgs e)
+    {
+        selectedFile = e.File;
+        // Handle the file upload logic here
+    }
+}   

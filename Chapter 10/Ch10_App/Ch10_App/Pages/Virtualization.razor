@@ -1,0 +1,72 @@
+﻿@page "/virtualization"
+@using Ch10_App.Models
+@using Ch10_App.Services
+@using Microsoft.AspNetCore.Components.Web.Virtualization 
+@using System.Collections.ObjectModel;
+
+<h2>Using Virtualization (1000 Records)</h2>
+This page demonstrates the use of the <b>Virtualize</b> component to efficiently render a large list of items. 
+The first section uses a traditional <b>foreach</b> loop to render all items, while the second section uses the
+<b>Virtualize</b> component to render only the visible items. The third section demonstrates how to use the <b>Virtualize</b> component with remote data.
+<hr />
+<h3>For Each Loop</h3>
+<div style="height:125px;overflow-y:scroll">
+    @foreach (Weather weather in weatherHistory)
+    {
+        <div>
+            @weather.id.ToString("0000"):
+            @weather.Date.ToShortTimeString()
+            Temp:@weather.TemperatureF°F (@weather.TemperatureC°C)
+        </div>
+    }
+</div>
+<hr />
+<h3>Virtualize Component</h3>
+<div style="height:125px;overflow-y:scroll">
+    <Virtualize Items="@weatherHistory" Context="weather" TItem="Weather">
+        <div>
+            @weather.id.ToString("0000"):
+            @weather.Date.ToShortTimeString()
+            Temp:@weather.TemperatureF°F (@weather.TemperatureC°C)
+        </div>
+    </Virtualize>
+</div>
+<hr />
+<h3>Virtulize Component with Remote Data</h3>
+<div style="height:125px;overflow-y:scroll">
+    <Virtualize ItemsProvider="@LoadWeather" Context="weather" ItemSize="40" OverscanCount="2">
+        <ItemContent>
+            <div>
+                @weather.id.ToString("0000"):
+                @weather.Date.ToShortTimeString()
+                Temp:@weather.TemperatureF°F (@weather.TemperatureC°C)
+            </div>
+        </ItemContent>
+        <Placeholder>
+            <p><em>Loading  Weather...</em></p>
+        </Placeholder>
+    </Virtualize>
+</div>
+
+@code {
+    private WeatherDataService weatherService = new();
+    private List<Weather> weatherHistory = null!;
+
+    protected override void OnInitialized()
+    {
+        weatherHistory = weatherService.GenerateWeatherData(1000).ToList();
+    }
+
+    private async ValueTask<ItemsProviderResult<Weather>> LoadWeather(ItemsProviderRequest request)
+    {
+        int totalCount = weatherHistory.Count;
+        var items = await FetchWeather(request.StartIndex, request.Count);
+        return new ItemsProviderResult<Weather>(items, totalCount);
+    }
+
+    private async Task<IEnumerable<Weather>> FetchWeather(int start, int count) 
+    {
+        await Task.Delay(500); // Simulate network delay
+        return weatherHistory.Skip(start).Take(count);
+    }
+}

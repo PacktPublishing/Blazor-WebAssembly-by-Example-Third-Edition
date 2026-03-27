@@ -1,0 +1,19 @@
+﻿@page "/multiple-files"
+@using Microsoft.AspNetCore.Components.Forms
+
+<h2>Multiple Files</h2>
+This page demonstrates how to use the <code>InputFile</code> component to allow users to upload multiple files. 
+<hr />
+
+<InputFile OnChange="OnChangeHandler" multiple />
+
+@code {
+    private void OnChangeHandler(InputFileChangeEventArgs e)
+    {
+        var files = e.GetMultipleFiles();
+        foreach (var file in files)
+        {
+            // do something
+        }
+    }
+}
