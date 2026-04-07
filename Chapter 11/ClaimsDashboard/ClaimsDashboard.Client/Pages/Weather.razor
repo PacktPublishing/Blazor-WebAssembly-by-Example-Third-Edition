@@ -1,0 +1,44 @@
+﻿@page "/weather"
+
+@using ClaimsDashboard.Shared
+@using Microsoft.AspNetCore.Authorization
+@inject HttpClient Http
+
+@attribute [Authorize]
+
+@if (forecasts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <h2>Weather Forecast</h2>
+    <ul>
+        @foreach (var forecast in forecasts)
+        {
+            <li>
+                @forecast.Date.ToShortDateString() -
+                @forecast.TemperatureC C /
+                @forecast.TemperatureF F -
+                @forecast.Summary
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    private WeatherForecast[]? forecasts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            forecasts = await
+                Http.GetFromJsonAsync<WeatherForecast[]>("weatherforecast");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading weather data: {ex.Message}");
+        }
+    }
+}
