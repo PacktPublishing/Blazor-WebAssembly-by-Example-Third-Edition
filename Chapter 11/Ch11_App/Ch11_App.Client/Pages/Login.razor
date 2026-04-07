@@ -1,0 +1,70 @@
+﻿@page "/login"
+@using Ch11_App.Shared
+@using Ch11_App.Client.Services
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+<h2>Login</h2>
+This page is used to demonstrate a simple login form. Enter any username and the password <i>password</i> to log in successfully.
+The login form will display an error message if the credentials are invalid.
+<hr />
+<div style="max-width: 400px;">
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div style="color: red; margin: 10px 0;">@errorMessage</div>
+    }
+
+    <EditForm Model="loginRequest" OnValidSubmit="HandleLogin">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div style="margin-bottom: 15px;">
+            <label>Username:</label>
+            <InputText @bind-Value="loginRequest.UserName" class="form-control" />
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label>Password:</label>
+            <InputText @bind-Value="loginRequest.Password" type="password" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary" disabled="@isLoading">
+            @(isLoading ? "Logging in..." : "Login")
+        </button>
+    </EditForm>
+</div>
+
+@code {
+    private LoginRequest loginRequest = new();
+    private string? errorMessage;
+    private bool isLoading;
+
+    private async Task HandleLogin()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var success = await AuthService.LoginAsync(loginRequest);
+
+            if (success)
+            {
+                Navigation.NavigateTo("/show-user-name");
+            }
+            else
+            {
+                errorMessage = "Invalid username or password";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Login failed: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
