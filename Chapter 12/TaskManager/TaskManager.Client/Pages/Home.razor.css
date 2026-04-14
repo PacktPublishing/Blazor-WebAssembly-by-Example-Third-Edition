@@ -1,0 +1,18 @@
+﻿.task-item {
+    transition: background-color 0.2s ease;
+}
+
+    .task-item:hover {
+        background-color: lightyellow;
+    }
+
+.task-completed {
+    text-decoration: line-through;
+    color: slategray;
+    opacity: 0.7;
+}
+
+.delete-btn:hover {
+    transform: scale(1.1);
+    transition: transform 0.2s;
+}

@@ -1,0 +1,78 @@
+﻿@page "/"
+
+<div class="container mt-3">
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <div class="alert alert-danger alert-dismissible">
+            @error
+            <button type="button" class="btn-close" @onclick="ClearError"></button>
+        </div>
+    }
+
+    <!-- Add new task -->
+    <div class="row mb-4">
+        <div class="col-md-6 mx-auto">
+            <div class="input-group">
+                <input type="text"
+                       class="form-control"
+                       placeholder="Enter new task..."
+                       @bind="newTaskName"
+                       @bind:event="oninput" />
+                <button type="button"
+                        class="btn btn-primary"
+                        @onclick="AddTask">
+                    <span class="bi bi-plus-circle"></span> Add Task
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Task list -->
+    @if (tasks == null)
+    {
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (tasks.Count == 0)
+    {
+        <div class="col-md-6 mx-auto text-center text-muted">
+            <p><em>No tasks yet. Add one above to get started!</em></p>
+        </div>
+    }
+    else
+    {
+        @foreach (var taskItem in tasks)
+        {
+            <div class="task-item d-flex col-md-6 mx-auto border-bottom py-2"
+                 @key="taskItem.TaskItemId">
+                <div class="p-2 flex-fill">
+                    <input type="checkbox"
+                           class="form-check-input me-2"
+                           checked="@taskItem.IsComplete" @onchange="@(() => ToggleTaskComplete(taskItem))" />
+                    <span class="@(taskItem.IsComplete ? "task-completed" : "")">
+                        @taskItem.TaskName
+                    </span>
+                </div>
+                <div class="p-1">
+                    <button type="button"
+                            class="delete-btn btn btn-outline-danger btn-sm"
+                            title="Delete task" @onclick="@(() => DeleteTask(taskItem.TaskItemId))">
+                        <span class="bi bi-trash"></span>
+                    </button>
+                </div>
+            </div>
+        }
+    }
+
+    <!-- Completed Task Count -->
+    <div class="col-md-6 mx-auto mt-3">
+        <small class="text-muted">
+            @CompletedTaskCount of @TotalTaskCount tasks completed
+        </small>
+    </div>
+</div>
+

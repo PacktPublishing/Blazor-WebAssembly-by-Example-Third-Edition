@@ -1,0 +1,21 @@
+﻿@TaskManager.Api_HostAddress = https://localhost:7200
+
+GET {{TaskManager.Api_HostAddress}}/api/taskitems
+
+###
+
+POST {{TaskManager.Api_HostAddress}}/api/taskitems
+Content-Type: application/json
+
+{
+  "taskName": "New Task",
+  "isComplete": false
+}
+
+###
+
+@id=3
+DELETE {{TaskManager.Api_HostAddress}}/api/taskitems/{{id}}
+
+###
+
