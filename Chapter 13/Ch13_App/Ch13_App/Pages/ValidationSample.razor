@@ -1,0 +1,38 @@
+﻿@page "/validation"
+
+@using Ch13_App.Models
+
+<h2>Validation</h2>
+This example binds the form directly to the model, which is a common approach in Blazor forms.
+<hr />
+
+<EditForm Model="expense" OnValidSubmit="@HandleValidSubmit">
+    <div class="mb-3">
+        <label class="form-label">Date</label>
+        <InputDate @bind-Value="expense.Date" class="form-control"/>
+        <ValidationMessage For="@(() => expense.Date)" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Vendor</label>
+        <InputText @bind-Value="expense.Vendor" class="form-control"/>
+        <ValidationMessage For="@(() => expense.Vendor)" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Amount</label>
+        <InputNumber @bind-Value="expense.Amount" class="form-control"/>
+        <ValidationMessage For="@(() => expense.Amount)" />
+    </div>
+    <button type="submit">Save</button>
+
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+</EditForm>
+
+@code {
+    private Expense expense = new();
+
+    private void HandleValidSubmit()
+    {
+        // Handle the valid form submission here
+    }
+}

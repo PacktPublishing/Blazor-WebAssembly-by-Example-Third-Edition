@@ -1,0 +1,29 @@
+﻿@page "/expense-edit-model"
+
+@using Ch13_App.Models
+
+<h2>Edit Expenses (Model)</h2>
+This example binds the form directly to the model, which is a common approach in Blazor forms.
+<hr />
+
+<EditForm Model="expense" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit">
+    <DataAnnotationsValidator />
+
+    Vendor <InputText @bind-Value="expense.Vendor" placeholder="Enter Vendor" />
+
+    <button type="submit">Save</button>
+</EditForm>
+
+@code {
+    private Expense expense = new();
+
+    private void HandleValidSubmit()
+    {
+        // Handle the valid form submission here
+    }
+
+    private void HandleInvalidSubmit()
+    {
+        // Handle the invalid form submission here
+    }
+}
