@@ -1,12 +1,14 @@
-﻿@page "/expense"
+@page "/expense"
 @page "/expense/{id}"
 
 @using ExpenseTracker.Models
 @using ExpenseTracker.Services
+@using Microsoft.AspNetCore.Components.Routing
 
 @implements IDisposable
 
 @inject ExpenseStorageService expenseStorageService
+@inject IJSRuntime jsRuntime
 @inject NavigationManager navigationManager
 
 <h2>Expense</h2>
@@ -18,7 +20,8 @@
 else
 {
     <EditForm EditContext="editContext" OnValidSubmit="HandleValidSubmit">
-        <NavigationLock ConfirmExternalNavigation="@isDirty" />
+        <NavigationLock ConfirmExternalNavigation="@isDirty"
+                        OnBeforeInternalNavigation="ConfirmInternalNavigation" />
         <div class="row mb-3">
             <label>
                 Date
@@ -114,14 +117,33 @@ else
 
     private async Task HandleValidSubmit()
     {
+        isDirty = false;
         await expenseStorageService.SaveExpenseAsync(expense!);
         navigationManager.NavigateTo("/");
     }
 
     private async Task DeleteExpense()
     {
+        isDirty = false;
         await expenseStorageService.DeleteExpenseAsync(expense.Id);
         navigationManager.NavigateTo("/");
+    }
+
+    private async Task ConfirmInternalNavigation(LocationChangingContext context)
+    {
+        if (!isDirty)
+        {
+            return;
+        }
+
+        var shouldLeave = await jsRuntime.InvokeAsync<bool>(
+            "confirm",
+            "You have unsaved changes. Are you sure you want to leave this page?");
+
+        if (!shouldLeave)
+        {
+            context.PreventNavigation();
+        }
     }
 
     private void HandleFieldChanged(object? sender, FieldChangedEventArgs e)
