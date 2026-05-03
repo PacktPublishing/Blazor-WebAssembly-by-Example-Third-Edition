@@ -23,7 +23,10 @@ namespace ExpenseTracker.Validation
                 if (date < minDate)
                 {
                     return new ValidationResult(
-                        FormatErrorMessage(validationContext.DisplayName));
+                    FormatErrorMessage(validationContext.DisplayName),
+                    validationContext.MemberName is null
+                        ? null
+                        : [validationContext.MemberName]);
                 }
             }
 
