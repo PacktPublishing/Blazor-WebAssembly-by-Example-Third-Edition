@@ -1,0 +1,161 @@
+﻿@page "/"
+
+@using Markdig
+@using SkillStudio.Client.Services
+@using SkillStudio.Shared
+
+@inject SkillsApiClient SkillsApiClient
+
+@if (skills.Count == 0)
+{
+    <p><em>Loading skills...</em></p>
+}
+else
+{
+    <div class="row">
+        <div id="skill-list" class="col-4">
+            <ul class="list-group">
+                @foreach (var skill in skills)
+                {
+                    <li class="list-group-item
+                        @(activeSkill?.Name == skill.Name ? "active" : "")"
+                        style="cursor:pointer"
+                        @onclick="() => SelectSkillAsync(skill.Name)">
+                        <strong>@skill.Name</strong><br />
+                        <small>@skill.Description</small>
+                    </li>
+                }
+            </ul>
+
+        </div>
+
+        <div id="main-content" class="col-8">
+            @if (activeSkill is not null)
+            {
+                <h4>@activeSkill.Name</h4>
+                <p>@activeSkill.Description</p>
+
+                <textarea class="form-control"
+                          rows="10"
+                          @bind="userInput"
+                          placeholder="Enter content for the selected skill..."></textarea>
+
+                <button class="btn btn-primary mt-3"
+                        @onclick="RunSkillAsync"
+                        disabled="@isRunning">
+                    @(isRunning ? "Running..." : "Run Skill")
+                </button>
+
+                @if (HasResponse)
+                {
+                    <div class="mt-4">
+                        @if (!string.IsNullOrWhiteSpace(thinkingSection))
+                        {
+                            <div class="card mb-3">
+                                <div class="card-header" style="cursor:pointer" @onclick="ToggleThinking">
+                                    <h5 class="mb-0">
+                                        <span class="me-2">@(showThinking ? "▼" : "▶")</span>
+                                        AI Thinking Process
+                                    </h5>
+                                </div>
+                                @if (showThinking)
+                                {
+                                    <div class="card-body bg-light">
+                                        @((MarkupString)Markdown.ToHtml(thinkingSection))
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(resultSection))
+                        {
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Result</h5>
+                                </div>
+                                <div class="card-body">
+                                    @((MarkupString)Markdown.ToHtml(resultSection))
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            }
+
+        </div>
+    </div>
+}
+
+@code {
+    private List<SkillDefinition> skills = [];
+    private SkillDefinition? activeSkill;
+    private string userInput = "";
+    private string resultSection = "";
+    private bool isRunning = false;
+    private bool HasResponse => !string.IsNullOrWhiteSpace(resultSection);
+    private string thinkingSection = string.Empty;
+    private bool showThinking = true;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        skills = await SkillsApiClient.GetSkillsAsync();
+        if (skills.Count > 0) await SelectSkillAsync(skills[0].Name);
+    }
+
+    private async Task SelectSkillAsync(string skillName)
+    {
+        activeSkill = await SkillsApiClient.GetSkillAsync(skillName);
+        userInput = "";
+        ClearResponse();
+    }
+
+    private void ClearResponse() => resultSection = "";
+
+    private async Task RunSkillAsync()
+    {
+        if (activeSkill is null || string.IsNullOrWhiteSpace(userInput)) return;
+        isRunning = true;
+        ClearResponse();
+
+        try
+        {
+            var request = new SkillRequest(activeSkill.Name, userInput);
+            var response = await SkillsApiClient.RunSkillAsync(request);
+            ParseResponse(response?.Result ?? "No result returned.");
+        }
+
+        finally { isRunning = false; }
+    }
+
+    private void ParseResponse(string response)
+    {
+        var thinkingIndex = response.IndexOf("## Approach");
+        var resultIndex = response.IndexOf("## Result");
+
+        if (thinkingIndex >= 0 && resultIndex >= 0 && resultIndex > thinkingIndex)
+        {
+            thinkingSection = response
+                .Substring(
+                    thinkingIndex + 11,
+                    resultIndex - thinkingIndex - 11)
+                .Trim();
+
+            resultSection = response.Substring(resultIndex + 9).Trim();
+        }
+        else if (resultIndex >= 0)
+        {
+            resultSection = response.Substring(resultIndex + 9).Trim();
+        }
+        else
+        {
+            resultSection = response;
+        }
+    }
+
+    private void ToggleThinking()
+    {
+        showThinking = !showThinking;
+    }
+
+}

@@ -1,0 +1,20 @@
+﻿@SkillStudio.Api_HostAddress = https://localhost:7262
+
+GET {{SkillStudio.Api_HostAddress}}/api/skills
+
+###
+
+@name=coin-flip
+GET {{SkillStudio.Api_HostAddress}}/api/skills/{{name}}
+
+###
+
+POST {{SkillStudio.Api_HostAddress}}/api/skills
+Content-Type: application/json
+
+{
+  "SkillName": "coin-flip",
+  "UserInput": "flip a coin"
+}
+
+###

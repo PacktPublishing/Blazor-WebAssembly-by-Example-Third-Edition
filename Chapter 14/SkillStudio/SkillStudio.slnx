@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="SkillStudio.Api/SkillStudio.Api.csproj" />
+  <Project Path="SkillStudio.Client/SkillStudio.Client.csproj" />
+  <Project Path="SkillStudio.Shared/SkillStudio.Shared.csproj" />
+</Solution>
