@@ -8,7 +8,7 @@
 @implements IDisposable
 
 @inject ExpenseStorageService expenseStorageService
-@inject IJSRuntime jsRuntime
+@inject IJSRuntime js
 @inject NavigationManager navigationManager
 
 <h2>Expense</h2>
@@ -136,11 +136,11 @@ else
             return;
         }
 
-        var shouldLeave = await jsRuntime.InvokeAsync<bool>(
+        var confirm = await js.InvokeAsync<bool>(
             "confirm",
             "You have unsaved changes. Are you sure you want to leave this page?");
 
-        if (!shouldLeave)
+        if (!confirm)
         {
             context.PreventNavigation();
         }
