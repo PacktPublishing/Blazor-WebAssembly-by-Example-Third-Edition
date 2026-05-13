@@ -1,0 +1,32 @@
+﻿@page "/expense-on-submit"
+
+@using Ch11_App.Models
+
+<h2>Edit Expenses (OnSubmit)</h2>
+This example demonstrates using the OnSubmit event to handle form submission, which allows you to perform custom 
+validation or processing before determining if the form is valid.
+<hr />
+
+<EditForm Model="expense" OnSubmit="@HandleSubmit">
+    Vendor <InputText @bind-Value="expense.Vendor" placeholder="Enter Vendor" />
+
+    <button type="submit">Save</button>
+</EditForm>
+
+@code {
+    private Expense expense = new();
+
+    private void HandleSubmit(EditContext editContext)
+    {
+        var isValid = editContext.Validate();
+
+        if (isValid)
+        {
+            // Handle the valid form submission here
+        }
+        else
+        {
+            // Handle the invalid form submission here
+        }
+    }
+}
