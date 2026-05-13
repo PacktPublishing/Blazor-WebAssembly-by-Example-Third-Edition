@@ -1,0 +1,56 @@
+﻿@page "/"
+
+@using ExpenseTracker.Models
+@using ExpenseTracker.Services
+
+@inject ExpenseStorageService expenseStorageService
+
+<h2>Expenses</h2>
+<a href="/expense" class="btn btn-primary mb-2">
+    <span class="bi bi-plus-circle"></span> Add Expense
+</a>
+@if (expenses == null)
+{
+    <p><em>Loading…</em></p>
+}
+else if (expenses.Count == 0)
+{
+    <p><em>No expenses yet. Add one to get started!</em></p>
+}
+else
+{
+    <!-- Expense list -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Date</th>
+                <th>Expense Type</th>
+                <th>Vendor</th>
+                <th class="text-end">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in expenses.OrderByDescending(e => e.Date))
+            {
+                <tr class="@(item.Paid ? "" : "table-warning")">
+                    <td><a href="/expense/@item.Id">Edit</a></td>
+                    <td>@item.Date.ToShortDateString()</td>
+                    <td>@item.ExpenseType</td>
+                    <td>@item.Vendor</td>
+                    <td class="text-end">$@item.Amount</td>
+                </tr>
+            }
+        </tbody>
+
+    </table>
+
+}
+@code {
+    private List<Expense>? expenses;
+
+    protected override async Task OnInitializedAsync()
+    {
+        expenses = await expenseStorageService.GetExpensesAsync();
+    }
+}
