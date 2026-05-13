@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="ClaimsDashboard.Client/ClaimsDashboard.Client.csproj" />
+  <Project Path="ClaimsDashboard.Server/ClaimsDashboard.Server.csproj" />
+  <Project Path="ClaimsDashboard.Shared/ClaimsDashboard.Shared.csproj" />
+</Solution>
