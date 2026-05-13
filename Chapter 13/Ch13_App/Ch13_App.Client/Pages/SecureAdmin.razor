@@ -1,0 +1,46 @@
+﻿@page "/secure-admin"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@attribute [Authorize(Roles = "admin")]
+
+<h2>Secure Page</h2>
+
+<p>Congratulations, you have been authenticated!</p>
+
+<div style="margin-top: 20px;">
+    <h4>Your Information:</h4>
+    <ul>
+        <li><strong>Username:</strong> @user?.Identity?.Name</li>
+        <li><strong>Authentication Type:</strong> @user?.Identity?.AuthenticationType</li>
+        <li><strong>Is Authenticated:</strong> @user?.Identity?.IsAuthenticated</li>
+        <li><strong>Role:</strong> @user?.IsInRole("admin") ? "Admin" : "User"</li>
+    </ul>
+
+    @if (user?.Claims.Any() == true)
+    {
+        <h4>Your Claims:</h4>
+        <ul>
+            @foreach (var claim in user.Claims)
+            {
+                <li><strong>@claim.Type:</strong> @claim.Value</li>
+            }
+        </ul>
+    }
+</div>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationStateTask { get; set; }
+
+    private System.Security.Claims.ClaimsPrincipal? user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthenticationStateTask != null)
+        {
+            var authState = await AuthenticationStateTask;
+            user = authState?.User;
+        }
+    }
+}
+

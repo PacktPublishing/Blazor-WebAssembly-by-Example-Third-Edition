@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Ch13_App.Client/Ch13_App.Client.csproj" />
+  <Project Path="Ch13_App.Shared/Ch13_App.Shared.csproj" />
+  <Project Path="Ch13_App/Ch13_App.Server.csproj" />
+</Solution>

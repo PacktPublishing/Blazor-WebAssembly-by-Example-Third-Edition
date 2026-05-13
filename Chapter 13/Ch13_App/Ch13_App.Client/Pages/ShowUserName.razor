@@ -1,0 +1,29 @@
+﻿@page "/show-user-name"
+@using Microsoft.AspNetCore.Components.Authorization
+
+<h2>Show User Name</h2>
+This page shows the name of the authenticated user. If the user is not authenticated, it will show <i>Not Authenticated</i>
+<hr />
+<p>User Name: @userName</p>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationStateTask { get; set; }
+
+    private string userName = "Loading...";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateTask;
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            userName = user.Identity.Name;
+        }
+        else
+        {
+            userName = "Not Authenticated";
+        }
+    }
+}
