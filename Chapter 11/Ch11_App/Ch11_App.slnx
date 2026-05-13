@@ -1,5 +1,0 @@
-<Solution>
-  <Project Path="Ch11_App.Client/Ch11_App.Client.csproj" Id="675d40f3-f47c-4dea-9427-8df00dd6b4ab" />
-  <Project Path="Ch11_App.Shared/Ch11_App.Shared.csproj" />
-  <Project Path="Ch11_App/Ch11_App.Server.csproj" />
-</Solution>
