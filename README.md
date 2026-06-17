@@ -121,3 +121,11 @@ _Toi B. Wright_  has been passionate about ASP.NET since its inception and has b
 </ul>
 
 </details>
+
+
+<h2>Errata</h2>
+<ul>
+   <li><b>Page 64</b>: Under the subheading <i>Adding a route parameter</i>, in step 4 code line, "increments" should be "increment". Hence, the code line will be:
+      @page "/counter/{increment:int}"
+      </li>
+</ul>
